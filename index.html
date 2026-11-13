@@ -6,8 +6,58 @@
           content="width=device-width, initial-scale=1.0">
     <title>Snake Game</title>
     <style>
+        body {
+            background-color: #f0f4f8;
+            color: #1f2937;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
         canvas {
-            border: 2px solid black;
+            background-color: #dff3df;
+            border: 4px solid #1f2937;
+            border-radius: 8px;
+            display: block;
+            margin: 20px auto;
+        }
+
+        #info {
+            color: #1f2937;
+            font-size: 1.1rem;
+            font-weight: bold;
+            min-height: 26px;
+        }
+
+        #info.game-over {
+            color: #b91c1c;
+        }
+
+        button {
+            background-color: #2563eb;
+            border: 0;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 5px;
+            padding: 10px 16px;
+        }
+
+        button:hover {
+            background-color: #1d4ed8;
+        }
+
+        button:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        #startButton {
+            background-color: #16a34a;
+        }
+
+        #startButton:hover {
+            background-color: #15803d;
         }
     </style>
 </head>
@@ -17,6 +67,7 @@
     <canvas id="gameCanvas" width="400"
             height="400"></canvas>
     <p id="info"></p>
+    <button id="startButton">Start Game</button>
     <button id="restartButton">Restart Game</button>
     <button id="pauseButton">Pause</button>
 
@@ -26,6 +77,8 @@
             document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
         const info = document.getElementById("info");
+        const startButton = document.getElementById("startButton");
+        const pauseButton = document.getElementById("pauseButton");
         const gridSize = 20;
         const tileCount = canvas.width / gridSize;
         const highScoreKey = "snakeHighScore";
@@ -42,21 +95,23 @@
         let highScore = Number(localStorage.getItem(highScoreKey)) || 0;
         let gameLoop = null;
         let isPaused = false;
+        let gameStarted = false;
 
         // ===== DRAWING =====
         const drawGame = () => {
             ctx.clearRect(0, 0,
                 canvas.width, canvas.height);
 
-            ctx.fillStyle = "red";
+            ctx.fillStyle = "#dc2626";
             ctx.fillRect(
                 food.x * gridSize,
                 food.y * gridSize,
                 gridSize, gridSize
             );
 
-            ctx.fillStyle = "black";
-            for (const segment of snake) {
+            for (let index = 0; index < snake.length; index++) {
+                const segment = snake[index];
+                ctx.fillStyle = index === 0 ? "#14532d" : "#16a34a";
                 ctx.fillRect(
                     segment.x * gridSize,
                     segment.y * gridSize,
@@ -72,7 +127,10 @@
             clearInterval(gameLoop);
             gameLoop = null;
             isPaused = false;
-            document.getElementById("pauseButton").textContent = "Pause";
+            gameStarted = false;
+            pauseButton.textContent = "Pause";
+            pauseButton.disabled = true;
+            info.classList.add("game-over");
             info.textContent =
                 `Game over! Final score: ${score} | High score: ${highScore}`;
         };
@@ -171,13 +229,16 @@
             food = generateFoodPosition();
             score = 0;
             isPaused = false;
-            document.getElementById("pauseButton").textContent = "Pause";
+            gameStarted = true;
+            pauseButton.textContent = "Pause";
+            pauseButton.disabled = false;
+            info.classList.remove("game-over");
             drawGame();
             startLoop();
         };
 
         const togglePause = () => {
-            if (!isPaused && gameLoop === null) {
+            if (!gameStarted || (!isPaused && gameLoop === null)) {
                 return;
             }
 
@@ -188,8 +249,7 @@
             } else {
                 startLoop();
             }
-            document.getElementById("pauseButton").textContent =
-                isPaused ? "Resume" : "Pause";
+            pauseButton.textContent = isPaused ? "Resume" : "Pause";
         };
 
         document.addEventListener("keydown", (event) => {
@@ -207,16 +267,22 @@
             }
         });
 
+        startButton.addEventListener(
+            "click",
+            startGame
+        );
         document.getElementById("restartButton").addEventListener(
             "click",
             startGame
         );
-        document.getElementById("pauseButton").addEventListener(
+        pauseButton.addEventListener(
             "click",
             togglePause
         );
 
-        startGame();
+        drawGame();
+        info.textContent = "Click Start Game to begin";
+        pauseButton.disabled = true;
 
         // ===================================
         // BUILD THE GAME FROM HERE
