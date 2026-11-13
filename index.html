@@ -79,6 +79,15 @@
                 return;
             }
 
+            const collidedWithSnake = snake.some(
+                (segment) => segment.x === head.x && segment.y === head.y
+            );
+
+            if (collidedWithSnake) {
+                clearInterval(gameLoop);
+                return;
+            }
+
             snake.unshift(head);
 
             if (head.x === food.x && head.y === food.y) {
