@@ -18,6 +18,7 @@
             height="400"></canvas>
     <p id="info"></p>
     <button id="restartButton">Restart Game</button>
+    <button id="pauseButton">Pause</button>
 
     <script>
         // ===== GAME SETUP =====
@@ -38,6 +39,7 @@
         let food = { x: 15, y: 15 };
         let score = 0;
         let gameLoop = null;
+        let isPaused = false;
 
         // ===== DRAWING =====
         const drawGame = () => {
@@ -66,6 +68,8 @@
         const endGame = () => {
             clearInterval(gameLoop);
             gameLoop = null;
+            isPaused = false;
+            document.getElementById("pauseButton").textContent = "Pause";
             info.textContent = `Game over! Final score: ${score}`;
         };
 
@@ -87,6 +91,47 @@
             return position;
         };
 
+        const gameTick = () => {
+            const head = {
+                x: snake[0].x + direction.x,
+                y: snake[0].y + direction.y
+            };
+
+            if (
+                head.x < 0 ||
+                head.x >= tileCount ||
+                head.y < 0 ||
+                head.y >= tileCount
+            ) {
+                endGame();
+                return;
+            }
+
+            const collidedWithSnake = snake.some(
+                (segment) => segment.x === head.x && segment.y === head.y
+            );
+
+            if (collidedWithSnake) {
+                endGame();
+                return;
+            }
+
+            snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                food = generateFoodPosition();
+                score++;
+            } else {
+                snake.pop();
+            }
+
+            drawGame();
+        };
+
+        const startLoop = () => {
+            gameLoop = setInterval(gameTick, 200);
+        };
+
         const startGame = () => {
             if (gameLoop !== null) {
                 clearInterval(gameLoop);
@@ -100,44 +145,26 @@
             direction = { x: 1, y: 0 };
             food = generateFoodPosition();
             score = 0;
+            isPaused = false;
+            document.getElementById("pauseButton").textContent = "Pause";
             drawGame();
+            startLoop();
+        };
 
-            gameLoop = setInterval(() => {
-                const head = {
-                    x: snake[0].x + direction.x,
-                    y: snake[0].y + direction.y
-                };
+        const togglePause = () => {
+            if (gameLoop === null) {
+                return;
+            }
 
-                if (
-                    head.x < 0 ||
-                    head.x >= tileCount ||
-                    head.y < 0 ||
-                    head.y >= tileCount
-                ) {
-                    endGame();
-                    return;
-                }
-
-                const collidedWithSnake = snake.some(
-                    (segment) => segment.x === head.x && segment.y === head.y
-                );
-
-                if (collidedWithSnake) {
-                    endGame();
-                    return;
-                }
-
-                snake.unshift(head);
-
-                if (head.x === food.x && head.y === food.y) {
-                    food = generateFoodPosition();
-                    score++;
-                } else {
-                    snake.pop();
-                }
-
-                drawGame();
-            }, 200);
+            isPaused = !isPaused;
+            if (isPaused) {
+                clearInterval(gameLoop);
+                gameLoop = null;
+            } else {
+                startLoop();
+            }
+            document.getElementById("pauseButton").textContent =
+                isPaused ? "Resume" : "Pause";
         };
 
         document.addEventListener("keydown", (event) => {
@@ -149,12 +176,19 @@
                 direction = { x: -1, y: 0 };
             } else if (event.key === "ArrowRight" && direction.x !== -1) {
                 direction = { x: 1, y: 0 };
+            } else if (event.code === "Space") {
+                event.preventDefault();
+                togglePause();
             }
         });
 
         document.getElementById("restartButton").addEventListener(
             "click",
             startGame
+        );
+        document.getElementById("pauseButton").addEventListener(
+            "click",
+            togglePause
         );
 
         startGame();
