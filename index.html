@@ -63,6 +63,11 @@
 
         drawGame();
 
+        const endGame = () => {
+            clearInterval(gameLoop);
+            info.textContent = `Game over! Final score: ${score}`;
+        };
+
         const gameLoop = setInterval(() => {
             const head = {
                 x: snake[0].x + direction.x,
@@ -75,7 +80,7 @@
                 head.y < 0 ||
                 head.y >= tileCount
             ) {
-                clearInterval(gameLoop);
+                endGame();
                 return;
             }
 
@@ -84,7 +89,7 @@
             );
 
             if (collidedWithSnake) {
-                clearInterval(gameLoop);
+                endGame();
                 return;
             }
 
