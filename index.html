@@ -17,6 +17,7 @@
     <canvas id="gameCanvas" width="400"
             height="400"></canvas>
     <p id="info"></p>
+    <button id="restartButton">Restart Game</button>
 
     <script>
         // ===== GAME SETUP =====
@@ -36,6 +37,7 @@
         let direction = { x: 1, y: 0 };
         let food = { x: 15, y: 15 };
         let score = 0;
+        let gameLoop = null;
 
         // ===== DRAWING =====
         const drawGame = () => {
@@ -61,52 +63,67 @@
             info.textContent = `Score: ${score}`;
         };
 
-        drawGame();
-
         const endGame = () => {
             clearInterval(gameLoop);
+            gameLoop = null;
             info.textContent = `Game over! Final score: ${score}`;
         };
 
-        const gameLoop = setInterval(() => {
-            const head = {
-                x: snake[0].x + direction.x,
-                y: snake[0].y + direction.y
-            };
-
-            if (
-                head.x < 0 ||
-                head.x >= tileCount ||
-                head.y < 0 ||
-                head.y >= tileCount
-            ) {
-                endGame();
-                return;
+        const startGame = () => {
+            if (gameLoop !== null) {
+                clearInterval(gameLoop);
             }
 
-            const collidedWithSnake = snake.some(
-                (segment) => segment.x === head.x && segment.y === head.y
-            );
-
-            if (collidedWithSnake) {
-                endGame();
-                return;
-            }
-
-            snake.unshift(head);
-
-            if (head.x === food.x && head.y === food.y) {
-                food = {
-                    x: Math.floor(Math.random() * tileCount),
-                    y: Math.floor(Math.random() * tileCount)
-                };
-                score++;
-            } else {
-                snake.pop();
-            }
-
+            snake = [
+                { x: 10, y: 10 },
+                { x: 9, y: 10 },
+                { x: 8, y: 10 }
+            ];
+            direction = { x: 1, y: 0 };
+            food = { x: 15, y: 15 };
+            score = 0;
             drawGame();
-        }, 200);
+
+            gameLoop = setInterval(() => {
+                const head = {
+                    x: snake[0].x + direction.x,
+                    y: snake[0].y + direction.y
+                };
+
+                if (
+                    head.x < 0 ||
+                    head.x >= tileCount ||
+                    head.y < 0 ||
+                    head.y >= tileCount
+                ) {
+                    endGame();
+                    return;
+                }
+
+                const collidedWithSnake = snake.some(
+                    (segment) => segment.x === head.x && segment.y === head.y
+                );
+
+                if (collidedWithSnake) {
+                    endGame();
+                    return;
+                }
+
+                snake.unshift(head);
+
+                if (head.x === food.x && head.y === food.y) {
+                    food = {
+                        x: Math.floor(Math.random() * tileCount),
+                        y: Math.floor(Math.random() * tileCount)
+                    };
+                    score++;
+                } else {
+                    snake.pop();
+                }
+
+                drawGame();
+            }, 200);
+        };
 
         document.addEventListener("keydown", (event) => {
             if (event.key === "ArrowUp" && direction.y !== 1) {
@@ -119,6 +136,13 @@
                 direction = { x: 1, y: 0 };
             }
         });
+
+        document.getElementById("restartButton").addEventListener(
+            "click",
+            startGame
+        );
+
+        startGame();
 
         // ===================================
         // BUILD THE GAME FROM HERE
