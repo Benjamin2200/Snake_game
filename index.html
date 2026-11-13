@@ -67,7 +67,17 @@
             };
 
             snake.unshift(head);
-            snake.pop();
+
+            if (head.x === food.x && head.y === food.y) {
+                food = {
+                    x: Math.floor(Math.random() * tileCount),
+                    y: Math.floor(Math.random() * tileCount)
+                };
+                score++;
+            } else {
+                snake.pop();
+            }
+
             drawGame();
         }, 200);
 
