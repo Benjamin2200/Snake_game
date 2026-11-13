@@ -152,7 +152,7 @@
         };
 
         const togglePause = () => {
-            if (gameLoop === null) {
+            if (!isPaused && gameLoop === null) {
                 return;
             }
 
