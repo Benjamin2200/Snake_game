@@ -69,6 +69,24 @@
             info.textContent = `Game over! Final score: ${score}`;
         };
 
+        const generateFoodPosition = () => {
+            let position;
+
+            do {
+                position = {
+                    x: Math.floor(Math.random() * tileCount),
+                    y: Math.floor(Math.random() * tileCount)
+                };
+            } while (
+                snake.some(
+                    (segment) =>
+                        segment.x === position.x && segment.y === position.y
+                )
+            );
+
+            return position;
+        };
+
         const startGame = () => {
             if (gameLoop !== null) {
                 clearInterval(gameLoop);
@@ -80,7 +98,7 @@
                 { x: 8, y: 10 }
             ];
             direction = { x: 1, y: 0 };
-            food = { x: 15, y: 15 };
+            food = generateFoodPosition();
             score = 0;
             drawGame();
 
@@ -112,10 +130,7 @@
                 snake.unshift(head);
 
                 if (head.x === food.x && head.y === food.y) {
-                    food = {
-                        x: Math.floor(Math.random() * tileCount),
-                        y: Math.floor(Math.random() * tileCount)
-                    };
+                    food = generateFoodPosition();
                     score++;
                 } else {
                     snake.pop();
