@@ -1,0 +1,53 @@
+body {
+    background-color: #f0f4f8;
+    color: #1f2937;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+canvas {
+    background-color: #dff3df;
+    border: 4px solid #1f2937;
+    border-radius: 8px;
+    display: block;
+    margin: 20px auto;
+}
+
+#info {
+    color: #1f2937;
+    font-size: 1.1rem;
+    font-weight: bold;
+    min-height: 26px;
+}
+
+#info.game-over {
+    color: #b91c1c;
+}
+
+button {
+    background-color: #2563eb;
+    border: 0;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    margin: 5px;
+    padding: 10px 16px;
+}
+
+button:hover {
+    background-color: #1d4ed8;
+}
+
+button:disabled {
+    background-color: #94a3b8;
+    cursor: not-allowed;
+}
+
+#startButton {
+    background-color: #16a34a;
+}
+
+#startButton:hover {
+    background-color: #15803d;
+}
