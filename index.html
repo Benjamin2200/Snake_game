@@ -28,6 +28,7 @@
         const info = document.getElementById("info");
         const gridSize = 20;
         const tileCount = canvas.width / gridSize;
+        const highScoreKey = "snakeHighScore";
 
         // ===== INITIAL STATE =====
         let snake = [
@@ -38,6 +39,7 @@
         let direction = { x: 1, y: 0 };
         let food = { x: 15, y: 15 };
         let score = 0;
+        let highScore = Number(localStorage.getItem(highScoreKey)) || 0;
         let gameLoop = null;
         let isPaused = false;
 
@@ -62,7 +64,8 @@
                 );
             }
 
-            info.textContent = `Score: ${score}`;
+            info.textContent =
+                `Score: ${score} | High score: ${highScore}`;
         };
 
         const endGame = () => {
@@ -70,7 +73,8 @@
             gameLoop = null;
             isPaused = false;
             document.getElementById("pauseButton").textContent = "Pause";
-            info.textContent = `Game over! Final score: ${score}`;
+            info.textContent =
+                `Game over! Final score: ${score} | High score: ${highScore}`;
         };
 
         const generateFoodPosition = () => {
@@ -121,6 +125,11 @@
             if (head.x === food.x && head.y === food.y) {
                 food = generateFoodPosition();
                 score++;
+                if (score > highScore) {
+                    highScore = score;
+                    localStorage.setItem(highScoreKey, highScore);
+                }
+                startLoop();
             } else {
                 snake.pop();
             }
@@ -128,8 +137,24 @@
             drawGame();
         };
 
+        const getGameInterval = () => {
+            if (score >= 15) {
+                return 110;
+            }
+            if (score >= 10) {
+                return 140;
+            }
+            if (score >= 5) {
+                return 170;
+            }
+            return 200;
+        };
+
         const startLoop = () => {
-            gameLoop = setInterval(gameTick, 200);
+            if (gameLoop !== null) {
+                clearInterval(gameLoop);
+            }
+            gameLoop = setInterval(gameTick, getGameInterval());
         };
 
         const startGame = () => {
